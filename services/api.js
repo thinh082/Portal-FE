@@ -1,6 +1,7 @@
 // API Configuration
 const API_CONFIG = {
     BASE_URL: 'http://localhost:5117/api/Student',
+    VNPAY_BASE_URL: 'http://localhost:5117/api/Vnpay',
     HEADERS: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -77,6 +78,40 @@ const StudentAPI = {
     // 8. Xem học phí
     getTuitionFee: async (studentId) => {
         return await apiCall(`/${studentId}/tuition-fee`, 'GET');
+    }
+};
+
+// VNPay API Functions
+const VnpayAPI = {
+    // Tạo URL thanh toán học phí
+    createPaymentUrl: async (studentId, tuitionFeeId, money) => {
+        try {
+            const options = {
+                method: 'POST',
+                headers: API_CONFIG.HEADERS,
+                body: JSON.stringify({
+                    studentId: studentId,
+                    tuitionFeeId: tuitionFeeId,
+                    money: money
+                })
+            };
+
+            const response = await fetch(`${API_CONFIG.VNPAY_BASE_URL}/CreatePaymentUrl`, options);
+            const result = await response.json();
+            
+            return {
+                success: response.ok,
+                status: response.status,
+                data: result
+            };
+        } catch (error) {
+            console.error('VNPay API Error:', error);
+            return {
+                success: false,
+                status: 500,
+                data: { message: 'Lỗi kết nối đến server', code: 500 }
+            };
+        }
     }
 };
 
