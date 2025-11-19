@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Portal Sinh Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 600;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .welcome-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-mortarboard"></i> Portal Sinh Viên
+            </span>
+            <div>
+                <span class="text-white me-3" id="studentName"></span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="welcome-section">
+            <h3>Xin chào, <span id="welcomeName"></span>!</h3>
+            <p class="text-muted mb-0">MSSV: <span id="welcomeMssv"></span></p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon text-primary">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <h5 class="card-title">Thông tin sinh viên</h5>
+                        <p class="text-muted">Xem thông tin cá nhân</p>
+                        <a href="student-info.html" class="btn btn-primary">
+                            <i class="bi bi-arrow-right"></i> Xem
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon text-success">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <h5 class="card-title">Danh sách môn học</h5>
+                        <p class="text-muted">Xem và đăng ký môn học</p>
+                        <a href="subjects.html" class="btn btn-success">
+                            <i class="bi bi-arrow-right"></i> Xem
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon text-info">
+                            <i class="bi bi-journal-check"></i>
+                        </div>
+                        <h5 class="card-title">Môn đã đăng ký</h5>
+                        <p class="text-muted">Xem và quản lý môn đã đăng ký</p>
+                        <a href="registered-subjects.html" class="btn btn-info">
+                            <i class="bi bi-arrow-right"></i> Xem
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon text-warning">
+                            <i class="bi bi-calendar-week"></i>
+                        </div>
+                        <h5 class="card-title">Thời khóa biểu</h5>
+                        <p class="text-muted">Xem lịch học hàng tuần</p>
+                        <a href="schedule.html" class="btn btn-warning">
+                            <i class="bi bi-arrow-right"></i> Xem
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="card-icon text-danger">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <h5 class="card-title">Học phí</h5>
+                        <p class="text-muted">Xem thông tin học phí</p>
+                        <a href="tuition-fee.html" class="btn btn-danger">
+                            <i class="bi bi-arrow-right"></i> Xem
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="services/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Kiểm tra đăng nhập
+            const student = Storage.getStudent();
+            if (!student) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Hiển thị thông tin
+            $('#studentName').text(student.hoTen);
+            $('#welcomeName').text(student.hoTen);
+            $('#welcomeMssv').text(student.mssv);
+        });
+
+        function logout() {
+            Storage.clearStudent();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
+

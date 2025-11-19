@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách môn học - Portal Sinh Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .subjects-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .subject-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .subject-item:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .badge-credit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+            <span class="navbar-brand mb-0 h1">Danh sách môn học</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="subjects-card">
+            <h3 class="mb-4">
+                <i class="bi bi-book text-success"></i> Tất cả môn học
+            </h3>
+            <div id="alertContainer"></div>
+            <div id="subjectsList">
+                <div class="text-center">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="services/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            const student = Storage.getStudent();
+            if (!student) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            loadSubjects();
+        });
+
+        async function loadSubjects() {
+            try {
+                const result = await StudentAPI.getAllSubjects();
+                
+                if (result.success && result.data.code === 200) {
+                    const subjects = result.data.data;
+                    
+                    if (subjects.length === 0) {
+                        $('#subjectsList').html('<p class="text-muted">Chưa có môn học nào</p>');
+                        return;
+                    }
+
+                    let html = '';
+                    subjects.forEach(subject => {
+                        html += `
+                            <div class="subject-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="mb-2">
+                                            <span class="badge bg-secondary me-2">${subject.maMon || 'N/A'}</span>
+                                            ${subject.tenMon || 'N/A'}
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            <i class="bi bi-bookmark"></i> Số tín chỉ: ${subject.soTinChi || 0}
+                                        </p>
+                                    </div>
+                                    <button class="btn btn-success btn-sm" onclick="registerSubject(${subject.id}, '${subject.tenMon}')">
+                                        <i class="bi bi-plus-circle"></i> Đăng ký
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    $('#subjectsList').html(html);
+                } else {
+                    showAlert(result.data.message || 'Không thể tải danh sách môn học', 'danger');
+                    $('#subjectsList').html('<p class="text-danger">Không thể tải danh sách môn học</p>');
+                }
+            } catch (error) {
+                showAlert('Có lỗi xảy ra', 'danger');
+                $('#subjectsList').html('<p class="text-danger">Có lỗi xảy ra khi tải danh sách</p>');
+            }
+        }
+
+        async function registerSubject(subjectId, subjectName) {
+            const student = Storage.getStudent();
+            
+            if (!confirm(`Bạn có chắc muốn đăng ký môn: ${subjectName}?`)) {
+                return;
+            }
+
+            try {
+                const result = await StudentAPI.registerSubject(student.id, subjectId);
+                
+                if (result.success && result.data.code === 200) {
+                    showAlert('Đăng ký môn học thành công!', 'success');
+                    // Có thể reload danh sách hoặc chuyển trang
+                    setTimeout(() => {
+                        window.location.href = 'registered-subjects.html';
+                    }, 1500);
+                } else {
+                    showAlert(result.data.message || 'Đăng ký thất bại', 'danger');
+                }
+            } catch (error) {
+                showAlert('Có lỗi xảy ra khi đăng ký', 'danger');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>
+

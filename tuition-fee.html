@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học phí - Portal Sinh Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .tuition-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .fee-item {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .fee-item:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-unpaid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .amount {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+            <span class="navbar-brand mb-0 h1">Học phí</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="tuition-card">
+            <h3 class="mb-4">
+                <i class="bi bi-cash-stack text-danger"></i> Thông tin học phí
+            </h3>
+            <div id="alertContainer"></div>
+            <div id="tuitionList">
+                <div class="text-center">
+                    <div class="spinner-border text-danger" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="services/api.js"></script>
+    <script>
+        $(document).ready(function() {
+            const student = Storage.getStudent();
+            if (!student) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            loadTuitionFee(student.id);
+        });
+
+        async function loadTuitionFee(studentId) {
+            try {
+                const result = await StudentAPI.getTuitionFee(studentId);
+                
+                if (result.success && result.data.code === 200) {
+                    const fees = result.data.data;
+                    
+                    if (fees.length === 0) {
+                        $('#tuitionList').html('<p class="text-muted text-center">Chưa có thông tin học phí</p>');
+                        return;
+                    }
+
+                    let html = '';
+                    fees.forEach(fee => {
+                        const statusClass = getStatusClass(fee.trangThai);
+                        const remaining = (fee.tongTien || 0) - (fee.daDong || 0);
+                        
+                        html += `
+                            <div class="fee-item">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h5 class="mb-2">
+                                            <span class="badge bg-primary me-2">${fee.hocKy || 'N/A'}</span>
+                                            ${fee.namHoc || 'N/A'}
+                                        </h5>
+                                        <span class="badge ${statusClass}">${fee.trangThai || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p class="text-muted mb-1">Tổng tiền</p>
+                                        <p class="amount text-primary">${formatCurrency(fee.tongTien || 0)}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="text-muted mb-1">Đã đóng</p>
+                                        <p class="amount text-success">${formatCurrency(fee.daDong || 0)}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="text-muted mb-1">Còn lại</p>
+                                        <p class="amount ${remaining > 0 ? 'text-danger' : 'text-success'}">${formatCurrency(remaining)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    $('#tuitionList').html(html);
+                } else {
+                    showAlert(result.data.message || 'Không thể tải thông tin học phí', 'danger');
+                    $('#tuitionList').html('<p class="text-danger">Không thể tải thông tin học phí</p>');
+                }
+            } catch (error) {
+                showAlert('Có lỗi xảy ra', 'danger');
+                $('#tuitionList').html('<p class="text-danger">Có lỗi xảy ra khi tải thông tin</p>');
+            }
+        }
+
+        function getStatusClass(status) {
+            if (!status) return 'bg-secondary';
+            if (status.includes('Đã đóng')) return 'status-paid';
+            if (status.includes('Chưa đóng')) return 'status-unpaid';
+            if (status.includes('một phần')) return 'status-partial';
+            return 'bg-secondary';
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>
+

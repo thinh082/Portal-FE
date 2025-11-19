@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thời khóa biểu - Portal Sinh Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .schedule-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .schedule-item {
+            border-left: 4px solid #ffc107;
+            background: #fff9e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .schedule-item:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .day-badge {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .time-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+            <span class="navbar-brand mb-0 h1">Thời khóa biểu</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="schedule-card">
+            <h3 class="mb-4">
+                <i class="bi bi-calendar-week text-warning"></i> Lịch học
+            </h3>
+            <div id="alertContainer"></div>
+            <div id="scheduleList">
+                <div class="text-center">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="services/api.js"></script>
+    <script>
+        const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+
+        $(document).ready(function() {
+            const student = Storage.getStudent();
+            if (!student) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            loadSchedule(student.id);
+        });
+
+        async function loadSchedule(studentId) {
+            try {
+                const result = await StudentAPI.getSchedule(studentId);
+                
+                if (result.success && result.data.code === 200) {
+                    const schedules = result.data.data;
+                    
+                    if (schedules.length === 0) {
+                        $('#scheduleList').html('<p class="text-muted text-center">Chưa có lịch học nào</p>');
+                        return;
+                    }
+
+                    let html = '';
+                    schedules.forEach(schedule => {
+                        const dayName = schedule.thu ? dayNames[schedule.thu] : 'N/A';
+                        html += `
+                            <div class="schedule-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="day-badge me-2">${dayName}</span>
+                                        <span class="time-badge">
+                                            Tiết ${schedule.tietBatDau || 'N/A'} - ${schedule.tietKetThuc || 'N/A'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <h5 class="mb-2">
+                                    <span class="badge bg-secondary me-2">${schedule.maMon || 'N/A'}</span>
+                                    ${schedule.tenMon || 'N/A'}
+                                </h5>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <p class="mb-1">
+                                            <i class="bi bi-geo-alt"></i> <strong>Phòng:</strong> ${schedule.phong || 'N/A'}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-0">
+                                            <i class="bi bi-person"></i> <strong>Giảng viên:</strong> ${schedule.giangVien || 'N/A'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    $('#scheduleList').html(html);
+                } else {
+                    showAlert(result.data.message || 'Không thể tải thời khóa biểu', 'danger');
+                    $('#scheduleList').html('<p class="text-danger">Không thể tải thời khóa biểu</p>');
+                }
+            } catch (error) {
+                showAlert('Có lỗi xảy ra', 'danger');
+                $('#scheduleList').html('<p class="text-danger">Có lỗi xảy ra khi tải thời khóa biểu</p>');
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>
+
