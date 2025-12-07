@@ -650,6 +650,7 @@
         </div>
     </div>
 
+    <script src="services/api.js"></script>
     <script src="services/admin-api.js"></script>
     <script>
         let charts = {};
@@ -662,6 +663,19 @@
         });
 
         function checkAuth() {
+            // Kiểm tra nếu đăng nhập từ index.html với isAdmin = true
+            const student = Storage.getStudent();
+            if (student && student.isAdmin === true) {
+                // Lưu vào StorageAdmin để tương thích
+                StorageAdmin.setAdmin({
+                    id: student.id,
+                    username: student.mssv || 'Admin'
+                });
+                $('#adminName').text(student.hoTen || student.mssv || 'Admin');
+                return;
+            }
+            
+            // Kiểm tra StorageAdmin (đăng nhập từ admin-login.html)
             if (!StorageAdmin.isLoggedIn()) {
                 window.location.href = 'admin-login.html';
             } else {
@@ -680,7 +694,8 @@
             $('#logoutBtn').on('click', function() {
                 if (confirm('Bạn có chắc muốn đăng xuất?')) {
                     StorageAdmin.clearAdmin();
-                    window.location.href = 'admin-login.html';
+                    Storage.clearStudent(); // Xóa cả Storage nếu có
+                    window.location.href = 'index.html';
                 }
             });
         }

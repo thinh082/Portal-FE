@@ -90,7 +90,12 @@
         $(document).ready(function() {
             // Kiểm tra nếu đã đăng nhập
             if (Storage.isLoggedIn()) {
-                window.location.href = 'dashboard.html';
+                const student = Storage.getStudent();
+                if (student && student.isAdmin === true) {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             }
 
             $('#loginForm').on('submit', async function(e) {
@@ -112,16 +117,22 @@
                     const result = await StudentAPI.login(mssv, password);
                     
                     if (result.success && result.data.code === 200) {
-                        // Lưu thông tin sinh viên
+                        // Lưu thông tin sinh viên/admin
                         Storage.setStudent({
                             id: result.data.id,
                             hoTen: result.data.hoTen,
-                            mssv: result.data.mssv
+                            mssv: result.data.mssv,
+                            isAdmin: result.data.isAdmin || false
                         });
                         
                         showAlert('Đăng nhập thành công! Đang chuyển hướng...', 'success');
                         setTimeout(() => {
-                            window.location.href = 'dashboard.html';
+                            // Kiểm tra nếu là admin thì chuyển đến admin-dashboard
+                            if (result.data.isAdmin === true) {
+                                window.location.href = 'admin-dashboard.html';
+                            } else {
+                                window.location.href = 'dashboard.html';
+                            }
                         }, 1000);
                     } else {
                         showAlert(result.data.message || 'Đăng nhập thất bại', 'danger');
