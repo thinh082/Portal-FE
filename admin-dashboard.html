@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Portal Sinh Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .sidebar-item {
+            transition: all 0.2s;
+        }
+        .sidebar-item:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+        .sidebar-item.active {
+            background-color: rgba(99, 102, 241, 0.15);
+            border-left: 3px solid #6366f1;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm z-40">
+        <div class="p-6 border-b border-gray-200">
+            <h1 class="text-[1.6rem] font-bold text-gray-900 flex items-center gap-2">
+                <i class="bi bi-shield-check text-indigo-600"></i>
+                Admin Portal
+            </h1>
+        </div>
+        <nav class="p-4 space-y-1">
+            <a href="#" data-tab="dashboard" class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer">
+                <i class="bi bi-speedometer2 text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Dashboard</span>
+            </a>
+            <a href="#" data-tab="students" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer">
+                <i class="bi bi-people text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Sinh viên</span>
+            </a>
+            <a href="#" data-tab="subjects" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer">
+                <i class="bi bi-book text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Môn học</span>
+            </a>
+            <a href="#" data-tab="schedules" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer">
+                <i class="bi bi-calendar-week text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Lịch học</span>
+            </a>
+            <a href="#" data-tab="registrations" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer">
+                <i class="bi bi-journal-check text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Đăng ký</span>
+            </a>
+            <a href="#" data-tab="tuition" class="sidebar-item flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer">
+                <i class="bi bi-cash-stack text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Học phí</span>
+            </a>
+        </nav>
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+            <button id="logoutBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors cursor-pointer">
+                <i class="bi bi-box-arrow-right text-[1.4rem]"></i>
+                <span class="text-[1.4rem]">Đăng xuất</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="ml-64">
+        <!-- Top Bar -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+            <div class="px-8 py-4 flex items-center justify-between">
+                <h2 id="pageTitle" class="text-[1.8rem] font-semibold text-gray-900">Dashboard</h2>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <i class="bi bi-person-circle text-[1.6rem]"></i>
+                        <span class="text-[1.4rem]" id="adminName">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="p-8">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active space-y-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[1.2rem] text-gray-600 mb-2">Tổng sinh viên</p>
+                                <p class="text-[2.4rem] font-bold text-gray-900" id="stat-totalStudents">0</p>
+                            </div>
+                            <div class="w-16 h-16 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="bi bi-people text-[2.4rem] text-indigo-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[1.2rem] text-gray-600 mb-2">Tổng môn học</p>
+                                <p class="text-[2.4rem] font-bold text-gray-900" id="stat-totalSubjects">0</p>
+                            </div>
+                            <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="bi bi-book text-[2.4rem] text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[1.2rem] text-gray-600 mb-2">Đăng ký mới</p>
+                                <p class="text-[2.4rem] font-bold text-gray-900" id="stat-totalRegistrations">0</p>
+                            </div>
+                            <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="bi bi-journal-check text-[2.4rem] text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[1.2rem] text-gray-600 mb-2">Tổng học phí</p>
+                                <p class="text-[2.4rem] font-bold text-gray-900" id="stat-totalTuition">0</p>
+                            </div>
+                            <div class="w-16 h-16 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="bi bi-cash-stack text-[2.4rem] text-yellow-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-[1.6rem] font-semibold text-gray-900 mb-4">Sinh viên theo khoa</h3>
+                        <div class="h-[200px]">
+                            <canvas id="studentsByDeptChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-[1.6rem] font-semibold text-gray-900 mb-4">Top môn học</h3>
+                        <div class="h-[200px]">
+                            <canvas id="topSubjectsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-[1.6rem] font-semibold text-gray-900 mb-4">Trạng thái học phí</h3>
+                        <div class="h-[200px]">
+                            <canvas id="tuitionStatusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-[1.6rem] font-semibold text-gray-900 mb-4">Học phí theo học kỳ</h3>
+                        <div class="h-[200px]">
+                            <canvas id="tuitionBySemesterChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Tab -->
+            <div id="tab-students" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý sinh viên</h3>
+                        <button onclick="openStudentModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                            <span class="text-[1.4rem]">Thêm sinh viên</span>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">MSSV</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Họ tên</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Lớp</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Khoa</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Email</th>
+                                    <th class="px-4 py-3 text-center text-[1.4rem] font-semibold text-gray-700">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="6" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">
+                                        <div class="spinner-border text-indigo-600" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects Tab -->
+            <div id="tab-subjects" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý môn học</h3>
+                        <button onclick="openSubjectModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                            <span class="text-[1.4rem]">Thêm môn học</span>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Mã môn</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Tên môn</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Số tín chỉ</th>
+                                    <th class="px-4 py-3 text-center text-[1.4rem] font-semibold text-gray-700">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectsTableBody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="4" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">
+                                        <div class="spinner-border text-indigo-600" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedules Tab -->
+            <div id="tab-schedules" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý lịch học</h3>
+                        <button onclick="openScheduleModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                            <span class="text-[1.4rem]">Thêm lịch học</span>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Mã môn</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Thứ</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Tiết</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Phòng</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Giảng viên</th>
+                                    <th class="px-4 py-3 text-center text-[1.4rem] font-semibold text-gray-700">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedulesTableBody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="6" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">
+                                        <div class="spinner-border text-indigo-600" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registrations Tab -->
+            <div id="tab-registrations" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-[1.8rem] font-semibold text-gray-900 mb-6">Quản lý đăng ký</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">MSSV</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Họ tên</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Mã môn</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Tên môn</th>
+                                    <th class="px-4 py-3 text-center text-[1.4rem] font-semibold text-gray-700">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationsTableBody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="5" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">
+                                        <div class="spinner-border text-indigo-600" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tuition Tab -->
+            <div id="tab-tuition" class="tab-content space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý học phí</h3>
+                        <button onclick="openTuitionModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                            <span class="text-[1.4rem]">Thêm học phí</span>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">MSSV</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Học kỳ</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Năm học</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Tổng tiền</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Đã đóng</th>
+                                    <th class="px-4 py-3 text-left text-[1.4rem] font-semibold text-gray-700">Trạng thái</th>
+                                    <th class="px-4 py-3 text-center text-[1.4rem] font-semibold text-gray-700">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tuitionsTableBody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="7" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">
+                                        <div class="spinner-border text-indigo-600" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Student Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h3 id="studentModalTitle" class="text-[1.8rem] font-semibold text-gray-900">Thêm sinh viên</h3>
+                <button onclick="closeStudentModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <i class="bi bi-x-lg text-[2rem]"></i>
+                </button>
+            </div>
+            <form id="studentForm" class="p-6 space-y-4">
+                <input type="hidden" id="studentId" value="">
+                <div>
+                    <label for="studentMssv" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-person-badge"></i> MSSV <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="studentMssv" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập MSSV">
+                </div>
+                <div>
+                    <label for="studentHoTen" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-person"></i> Họ và tên <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="studentHoTen" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập họ và tên">
+                </div>
+                <div>
+                    <label for="studentLop" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-people"></i> Lớp <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="studentLop" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập lớp">
+                </div>
+                <div>
+                    <label for="studentKhoa" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-building"></i> Khoa <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="studentKhoa" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập khoa">
+                </div>
+                <div>
+                    <label for="studentEmail" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-envelope"></i> Email <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" id="studentEmail" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập email">
+                </div>
+                <div>
+                    <label for="studentPassword" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-lock"></i> Mật khẩu <span id="passwordRequired" class="text-red-500">*</span>
+                    </label>
+                    <input type="password" id="studentPassword"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập mật khẩu">
+                    <p class="mt-1 text-[1.2rem] text-gray-500 hidden" id="passwordHint">Để trống nếu không muốn thay đổi mật khẩu</p>
+                </div>
+                <div id="studentModalAlert" class="hidden"></div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="closeStudentModal()" 
+                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer text-[1.4rem]">
+                        Hủy
+                    </button>
+                    <button type="submit" id="studentSubmitBtn"
+                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer text-[1.4rem]">
+                        <span id="studentSubmitText">Thêm</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div id="subjectModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h3 id="subjectModalTitle" class="text-[1.8rem] font-semibold text-gray-900">Thêm môn học</h3>
+                <button onclick="closeSubjectModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <i class="bi bi-x-lg text-[2rem]"></i>
+                </button>
+            </div>
+            <form id="subjectForm" class="p-6 space-y-4">
+                <input type="hidden" id="subjectId" value="">
+                <div>
+                    <label for="subjectMaMon" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-bookmark"></i> Mã môn <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="subjectMaMon" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập mã môn">
+                </div>
+                <div>
+                    <label for="subjectTenMon" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-book"></i> Tên môn <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="subjectTenMon" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập tên môn">
+                </div>
+                <div>
+                    <label for="subjectSoTinChi" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-123"></i> Số tín chỉ <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="subjectSoTinChi" required min="1"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập số tín chỉ">
+                </div>
+                <div id="subjectModalAlert" class="hidden"></div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="closeSubjectModal()" 
+                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer text-[1.4rem]">
+                        Hủy
+                    </button>
+                    <button type="submit" id="subjectSubmitBtn"
+                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer text-[1.4rem]">
+                        <span id="subjectSubmitText">Thêm</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div id="scheduleModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h3 id="scheduleModalTitle" class="text-[1.8rem] font-semibold text-gray-900">Thêm lịch học</h3>
+                <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <i class="bi bi-x-lg text-[2rem]"></i>
+                </button>
+            </div>
+            <form id="scheduleForm" class="p-6 space-y-4">
+                <input type="hidden" id="scheduleId" value="">
+                <div>
+                    <label for="scheduleSubjectId" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-book"></i> Môn học <span class="text-red-500">*</span>
+                    </label>
+                    <select id="scheduleSubjectId" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]">
+                        <option value="">Chọn môn học</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="scheduleThu" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-calendar-week"></i> Thứ <span class="text-red-500">*</span>
+                    </label>
+                    <select id="scheduleThu" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]">
+                        <option value="">Chọn thứ</option>
+                        <option value="2">Thứ 2</option>
+                        <option value="3">Thứ 3</option>
+                        <option value="4">Thứ 4</option>
+                        <option value="5">Thứ 5</option>
+                        <option value="6">Thứ 6</option>
+                        <option value="7">Thứ 7</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="scheduleTietBatDau" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                            <i class="bi bi-clock"></i> Tiết bắt đầu <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="scheduleTietBatDau" required min="1" max="12"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                               placeholder="Tiết bắt đầu">
+                    </div>
+                    <div>
+                        <label for="scheduleTietKetThuc" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                            <i class="bi bi-clock-history"></i> Tiết kết thúc <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="scheduleTietKetThuc" required min="1" max="12"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                               placeholder="Tiết kết thúc">
+                    </div>
+                </div>
+                <div>
+                    <label for="schedulePhong" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-geo-alt"></i> Phòng <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="schedulePhong" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập phòng học">
+                </div>
+                <div>
+                    <label for="scheduleGiangVien" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-person"></i> Giảng viên <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="scheduleGiangVien" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập tên giảng viên">
+                </div>
+                <div id="scheduleModalAlert" class="hidden"></div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="closeScheduleModal()" 
+                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer text-[1.4rem]">
+                        Hủy
+                    </button>
+                    <button type="submit" id="scheduleSubmitBtn"
+                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer text-[1.4rem]">
+                        <span id="scheduleSubmitText">Thêm</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tuition Modal -->
+    <div id="tuitionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                <h3 id="tuitionModalTitle" class="text-[1.8rem] font-semibold text-gray-900">Thêm học phí</h3>
+                <button onclick="closeTuitionModal()" class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <i class="bi bi-x-lg text-[2rem]"></i>
+                </button>
+            </div>
+            <form id="tuitionForm" class="p-6 space-y-4">
+                <input type="hidden" id="tuitionId" value="">
+                <div>
+                    <label for="tuitionStudentId" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-person"></i> Sinh viên <span class="text-red-500">*</span>
+                    </label>
+                    <select id="tuitionStudentId" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]">
+                        <option value="">Chọn sinh viên</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="tuitionHocKy" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                            <i class="bi bi-calendar"></i> Học kỳ <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="tuitionHocKy" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                               placeholder="VD: HK1">
+                    </div>
+                    <div>
+                        <label for="tuitionNamHoc" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                            <i class="bi bi-calendar-year"></i> Năm học <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="tuitionNamHoc" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                               placeholder="VD: 2024-2025">
+                    </div>
+                </div>
+                <div>
+                    <label for="tuitionTongTien" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-cash-stack"></i> Tổng tiền <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="tuitionTongTien" required min="0" step="1000"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập tổng tiền (VND)">
+                </div>
+                <div>
+                    <label for="tuitionDaDong" class="block text-[1.4rem] font-medium text-gray-700 mb-2">
+                        <i class="bi bi-cash"></i> Đã đóng
+                    </label>
+                    <input type="number" id="tuitionDaDong" min="0" step="1000" value="0"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-[1.4rem]"
+                           placeholder="Nhập số tiền đã đóng (VND)">
+                </div>
+                <div id="tuitionModalAlert" class="hidden"></div>
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="closeTuitionModal()" 
+                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer text-[1.4rem]">
+                        Hủy
+                    </button>
+                    <button type="submit" id="tuitionSubmitBtn"
+                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer text-[1.4rem]">
+                        <span id="tuitionSubmitText">Thêm</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="services/admin-api.js"></script>
+    <script>
+        let charts = {};
+        let currentTab = 'dashboard';
+
+        $(document).ready(function() {
+            checkAuth();
+            initTabs();
+            loadDashboardData();
+        });
+
+        function checkAuth() {
+            if (!StorageAdmin.isLoggedIn()) {
+                window.location.href = 'admin-login.html';
+            } else {
+                const admin = StorageAdmin.getAdmin();
+                $('#adminName').text(admin.username || 'Admin');
+            }
+        }
+
+        function initTabs() {
+            $('[data-tab]').on('click', function(e) {
+                e.preventDefault();
+                const tab = $(this).data('tab');
+                setActiveTab(tab);
+            });
+
+            $('#logoutBtn').on('click', function() {
+                if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                    StorageAdmin.clearAdmin();
+                    window.location.href = 'admin-login.html';
+                }
+            });
+        }
+
+        function setActiveTab(tab) {
+            currentTab = tab;
+            
+            // Update sidebar
+            $('.sidebar-item').removeClass('active');
+            $(`.sidebar-item[data-tab="${tab}"]`).addClass('active');
+            
+            // Update content
+            $('.tab-content').removeClass('active');
+            $(`#tab-${tab}`).addClass('active');
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                students: 'Quản lý sinh viên',
+                subjects: 'Quản lý môn học',
+                schedules: 'Quản lý lịch học',
+                registrations: 'Quản lý đăng ký',
+                tuition: 'Quản lý học phí'
+            };
+            $('#pageTitle').text(titles[tab] || 'Dashboard');
+            
+            // Load tab data
+            loadTabData(tab);
+        }
+
+        async function loadDashboardData() {
+            await loadStats();
+            await loadCharts();
+        }
+
+        async function loadStats() {
+            try {
+                const result = await AdminAPI.getDashboardStats();
+                if (result.success && result.data.code === 200) {
+                    const stats = result.data.data || {};
+                    $('#stat-totalStudents').text(stats.totalStudents || 0);
+                    $('#stat-totalSubjects').text(stats.totalSubjects || 0);
+                    $('#stat-totalRegistrations').text(stats.totalRegistrations || 0);
+                    $('#stat-totalTuition').text(formatCurrency(stats.totalTuition || 0));
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadCharts() {
+            setTimeout(() => {
+                loadStudentsByDeptChart();
+                loadTopSubjectsChart();
+                loadTuitionStatusChart();
+                loadTuitionBySemesterChart();
+            }, 100);
+        }
+
+        async function loadStudentsByDeptChart() {
+            try {
+                const result = await AdminAPI.getStudentsByDepartment();
+                if (result.success && result.data.code === 200) {
+                    const data = result.data.data || [];
+                    const ctx = document.getElementById('studentsByDeptChart');
+                    if (ctx && !charts.studentsByDept) {
+                        charts.studentsByDept = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.map(d => d.khoa || 'N/A'),
+                                datasets: [{
+                                    label: 'Số sinh viên',
+                                    data: data.map(d => d.count || 0),
+                                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                                    borderColor: 'rgba(99, 102, 241, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading students by dept chart:', error);
+            }
+        }
+
+        async function loadTopSubjectsChart() {
+            try {
+                const result = await AdminAPI.getTopSubjects(10);
+                if (result.success && result.data.code === 200) {
+                    const data = result.data.data || [];
+                    const ctx = document.getElementById('topSubjectsChart');
+                    if (ctx && !charts.topSubjects) {
+                        charts.topSubjects = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: data.map(d => d.tenMon || 'N/A'),
+                                datasets: [{
+                                    data: data.map(d => d.count || 0),
+                                    backgroundColor: [
+                                        'rgba(99, 102, 241, 0.8)',
+                                        'rgba(16, 185, 129, 0.8)',
+                                        'rgba(245, 158, 11, 0.8)',
+                                        'rgba(239, 68, 68, 0.8)',
+                                        'rgba(139, 92, 246, 0.8)'
+                                    ]
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading top subjects chart:', error);
+            }
+        }
+
+        async function loadTuitionStatusChart() {
+            try {
+                const result = await AdminAPI.getTuitionStatus();
+                if (result.success && result.data.code === 200) {
+                    const data = result.data.data || [];
+                    const ctx = document.getElementById('tuitionStatusChart');
+                    if (ctx && !charts.tuitionStatus) {
+                        charts.tuitionStatus = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: data.map(d => d.trangThai || 'N/A'),
+                                datasets: [{
+                                    data: data.map(d => d.count || 0),
+                                    backgroundColor: [
+                                        'rgba(16, 185, 129, 0.8)',
+                                        'rgba(239, 68, 68, 0.8)',
+                                        'rgba(245, 158, 11, 0.8)'
+                                    ]
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading tuition status chart:', error);
+            }
+        }
+
+        async function loadTuitionBySemesterChart() {
+            try {
+                const result = await AdminAPI.getTuitionBySemester();
+                if (result.success && result.data.code === 200) {
+                    const data = result.data.data || [];
+                    const ctx = document.getElementById('tuitionBySemesterChart');
+                    if (ctx && !charts.tuitionBySemester) {
+                        charts.tuitionBySemester = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: data.map(d => `${d.hocKy} - ${d.namHoc}` || 'N/A'),
+                                datasets: [{
+                                    label: 'Tổng học phí',
+                                    data: data.map(d => d.tongTien || 0),
+                                    borderColor: 'rgba(99, 102, 241, 1)',
+                                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                    tension: 0.4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading tuition by semester chart:', error);
+            }
+        }
+
+        async function loadTabData(tab) {
+            switch(tab) {
+                case 'students':
+                    await loadStudents();
+                    break;
+                case 'subjects':
+                    await loadSubjects();
+                    break;
+                case 'schedules':
+                    await loadSchedules();
+                    break;
+                case 'registrations':
+                    await loadRegistrations();
+                    break;
+                case 'tuition':
+                    await loadTuitions();
+                    break;
+                case 'dashboard':
+                    await loadDashboardData();
+                    break;
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const result = await AdminAPI.getAllStudents();
+                if (result.success && result.data.code === 200) {
+                    const students = result.data.data || [];
+                    let html = '';
+                    if (students.length === 0) {
+                        html = '<tr><td colspan="6" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">Chưa có dữ liệu</td></tr>';
+                    } else {
+                        students.forEach(student => {
+                            html += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${student.mssv || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${student.hoTen || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${student.lop || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${student.khoa || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${student.email || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button onclick="openStudentModal('edit', ${student.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer" data-student-id="${student.id}">
+                                                <i class="bi bi-pencil text-[1.4rem]"></i>
+                                            </button>
+                                            <button onclick="deleteStudent(${student.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-trash text-[1.4rem]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    $('#studentsTableBody').html(html);
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+                $('#studentsTableBody').html('<tr><td colspan="6" class="px-4 py-8 text-center text-[1.4rem] text-red-500">Có lỗi xảy ra</td></tr>');
+            }
+        }
+
+        async function loadSubjects() {
+            try {
+                const result = await AdminAPI.getAllSubjects();
+                if (result.success && result.data.code === 200) {
+                    const subjects = result.data.data || [];
+                    let html = '';
+                    if (subjects.length === 0) {
+                        html = '<tr><td colspan="4" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">Chưa có dữ liệu</td></tr>';
+                    } else {
+                        subjects.forEach(subject => {
+                            html += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${subject.maMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${subject.tenMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${subject.soTinChi || 0}</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button onclick="openSubjectModal('edit', ${subject.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-pencil text-[1.4rem]"></i>
+                                            </button>
+                                            <button onclick="deleteSubject(${subject.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-trash text-[1.4rem]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    $('#subjectsTableBody').html(html);
+                }
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+                $('#subjectsTableBody').html('<tr><td colspan="4" class="px-4 py-8 text-center text-[1.4rem] text-red-500">Có lỗi xảy ra</td></tr>');
+            }
+        }
+
+        async function loadSchedules() {
+            try {
+                const result = await AdminAPI.getAllSchedules();
+                if (result.success && result.data.code === 200) {
+                    const schedules = result.data.data || [];
+                    let html = '';
+                    if (schedules.length === 0) {
+                        html = '<tr><td colspan="6" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">Chưa có dữ liệu</td></tr>';
+                    } else {
+                        schedules.forEach(schedule => {
+                            html += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${schedule.maMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">Thứ ${schedule.thu || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${schedule.tietBatDau || 'N/A'}-${schedule.tietKetThuc || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${schedule.phong || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${schedule.giangVien || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button onclick="openScheduleModal('edit', ${schedule.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-pencil text-[1.4rem]"></i>
+                                            </button>
+                                            <button onclick="deleteSchedule(${schedule.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-trash text-[1.4rem]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    $('#schedulesTableBody').html(html);
+                }
+            } catch (error) {
+                console.error('Error loading schedules:', error);
+                $('#schedulesTableBody').html('<tr><td colspan="6" class="px-4 py-8 text-center text-[1.4rem] text-red-500">Có lỗi xảy ra</td></tr>');
+            }
+        }
+
+        async function loadRegistrations() {
+            try {
+                const result = await AdminAPI.getAllRegistrations();
+                if (result.success && result.data.code === 200) {
+                    const registrations = result.data.data || [];
+                    let html = '';
+                    if (registrations.length === 0) {
+                        html = '<tr><td colspan="5" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">Chưa có dữ liệu</td></tr>';
+                    } else {
+                        registrations.forEach(reg => {
+                            html += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${reg.mssv || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${reg.hoTen || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${reg.maMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${reg.tenMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <button onclick="deleteRegistration(${reg.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                                            <i class="bi bi-trash text-[1.4rem]"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    $('#registrationsTableBody').html(html);
+                }
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                $('#registrationsTableBody').html('<tr><td colspan="5" class="px-4 py-8 text-center text-[1.4rem] text-red-500">Có lỗi xảy ra</td></tr>');
+            }
+        }
+
+        async function loadTuitions() {
+            try {
+                const result = await AdminAPI.getAllTuitionFees();
+                if (result.success && result.data.code === 200) {
+                    const tuitions = result.data.data || [];
+                    let html = '';
+                    if (tuitions.length === 0) {
+                        html = '<tr><td colspan="7" class="px-4 py-8 text-center text-[1.4rem] text-gray-500">Chưa có dữ liệu</td></tr>';
+                    } else {
+                        tuitions.forEach(tuition => {
+                            const statusClass = getStatusBadgeClass(tuition.trangThai);
+                            html += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${tuition.mssv || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${tuition.hocKy || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${tuition.namHoc || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${formatCurrency(tuition.tongTien || 0)}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${formatCurrency(tuition.daDong || 0)}</td>
+                                    <td class="px-4 py-4 text-[1.4rem]">
+                                        <span class="${statusClass} px-3 py-1 rounded-full text-[1.2rem]">
+                                            ${tuition.trangThai || 'N/A'}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button onclick="openTuitionModal('edit', ${tuition.id})" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-pencil text-[1.4rem]"></i>
+                                            </button>
+                                            <button onclick="deleteTuition(${tuition.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                                                <i class="bi bi-trash text-[1.4rem]"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    $('#tuitionsTableBody').html(html);
+                }
+            } catch (error) {
+                console.error('Error loading tuitions:', error);
+                $('#tuitionsTableBody').html('<tr><td colspan="7" class="px-4 py-8 text-center text-[1.4rem] text-red-500">Có lỗi xảy ra</td></tr>');
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        function getStatusBadgeClass(status) {
+            if (!status) return 'bg-gray-100 text-gray-800';
+            if (status.includes('Đã đóng')) return 'bg-green-100 text-green-800';
+            if (status.includes('Chưa đóng')) return 'bg-red-100 text-red-800';
+            if (status.includes('một phần')) return 'bg-yellow-100 text-yellow-800';
+            return 'bg-gray-100 text-gray-800';
+        }
+
+        // Student Modal functions
+        let currentStudentId = null;
+
+        async function openStudentModal(mode, id = null) {
+            currentStudentId = id;
+            const modal = document.getElementById('studentModal');
+            const form = document.getElementById('studentForm');
+            const title = document.getElementById('studentModalTitle');
+            const submitText = document.getElementById('studentSubmitText');
+            const passwordRequired = document.getElementById('passwordRequired');
+            const passwordHint = document.getElementById('passwordHint');
+            const passwordInput = document.getElementById('studentPassword');
+
+            // Reset form
+            form.reset();
+            document.getElementById('studentId').value = '';
+            document.getElementById('studentModalAlert').innerHTML = '';
+            document.getElementById('studentModalAlert').classList.add('hidden');
+
+            if (mode === 'create') {
+                title.textContent = 'Thêm sinh viên';
+                submitText.textContent = 'Thêm';
+                passwordRequired.style.display = 'inline';
+                passwordHint.classList.add('hidden');
+                passwordInput.required = true;
+                passwordInput.placeholder = 'Nhập mật khẩu';
+            } else if (mode === 'edit' && id) {
+                title.textContent = 'Sửa thông tin sinh viên';
+                submitText.textContent = 'Cập nhật';
+                passwordRequired.style.display = 'none';
+                passwordHint.classList.remove('hidden');
+                passwordInput.required = false;
+                passwordInput.placeholder = 'Nhập mật khẩu (để trống nếu không đổi)';
+                
+                // Load student data
+                try {
+                    const result = await AdminAPI.getStudent(id);
+                    if (result.success && result.data.code === 200) {
+                        const student = result.data.data;
+                        document.getElementById('studentId').value = student.id || '';
+                        document.getElementById('studentMssv').value = student.mssv || '';
+                        document.getElementById('studentHoTen').value = student.hoTen || '';
+                        document.getElementById('studentLop').value = student.lop || '';
+                        document.getElementById('studentKhoa').value = student.khoa || '';
+                        document.getElementById('studentEmail').value = student.email || '';
+                    } else {
+                        showStudentAlert('Không thể tải thông tin sinh viên', 'danger');
+                        return;
+                    }
+                } catch (error) {
+                    showStudentAlert('Có lỗi xảy ra khi tải thông tin', 'danger');
+                    return;
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            const modal = document.getElementById('studentModal');
+            modal.classList.add('hidden');
+            currentStudentId = null;
+        }
+
+        function showStudentAlert(message, type) {
+            const alertDiv = document.getElementById('studentModalAlert');
+            const colors = {
+                success: 'bg-green-100 text-green-800 border-green-200',
+                danger: 'bg-red-100 text-red-800 border-red-200'
+            };
+            alertDiv.className = `${colors[type] || colors.danger} border rounded-lg p-4 text-[1.4rem]`;
+            alertDiv.innerHTML = message;
+            alertDiv.classList.remove('hidden');
+        }
+
+        // Handle form submission
+        document.getElementById('studentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('studentSubmitBtn');
+            const submitText = document.getElementById('studentSubmitText');
+            const originalText = submitText.textContent;
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitText.textContent = 'Đang xử lý...';
+
+            const studentData = {
+                mssv: document.getElementById('studentMssv').value.trim(),
+                hoTen: document.getElementById('studentHoTen').value.trim(),
+                lop: document.getElementById('studentLop').value.trim(),
+                khoa: document.getElementById('studentKhoa').value.trim(),
+                email: document.getElementById('studentEmail').value.trim()
+            };
+
+            const password = document.getElementById('studentPassword').value;
+            if (password) {
+                studentData.password = password;
+            }
+
+            try {
+                let result;
+                if (currentStudentId) {
+                    // Update student
+                    result = await AdminAPI.updateStudent(currentStudentId, studentData);
+                } else {
+                    // Create student
+                    if (!password) {
+                        showStudentAlert('Vui lòng nhập mật khẩu', 'danger');
+                        submitBtn.disabled = false;
+                        submitText.textContent = originalText;
+                        return;
+                    }
+                    result = await AdminAPI.createStudent(studentData);
+                }
+
+                if (result.success && result.data.code === 200) {
+                    showStudentAlert(currentStudentId ? 'Cập nhật thành công!' : 'Thêm sinh viên thành công!', 'success');
+                    setTimeout(async () => {
+                        closeStudentModal();
+                        await loadStudents();
+                    }, 1000);
+                } else {
+                    showStudentAlert(result.data.message || 'Có lỗi xảy ra', 'danger');
+                    submitBtn.disabled = false;
+                    submitText.textContent = originalText;
+                }
+            } catch (error) {
+                showStudentAlert('Có lỗi xảy ra: ' + error.message, 'danger');
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('studentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeStudentModal();
+            }
+        });
+
+        // Delete functions
+        async function deleteStudent(id) {
+            if (confirm('Bạn có chắc muốn xóa sinh viên này?')) {
+                try {
+                    const result = await AdminAPI.deleteStudent(id);
+                    if (result.success && result.data.code === 200) {
+                        await loadStudents();
+                        alert('Xóa thành công');
+                    } else {
+                        alert('Xóa thất bại: ' + (result.data.message || ''));
+                    }
+                } catch (error) {
+                    alert('Có lỗi xảy ra');
+                }
+            }
+        }
+
+        async function deleteSubject(id) {
+            if (confirm('Bạn có chắc muốn xóa môn học này?')) {
+                try {
+                    const result = await AdminAPI.deleteSubject(id);
+                    if (result.success && result.data.code === 200) {
+                        await loadSubjects();
+                        alert('Xóa thành công');
+                    } else {
+                        alert('Xóa thất bại: ' + (result.data.message || ''));
+                    }
+                } catch (error) {
+                    alert('Có lỗi xảy ra');
+                }
+            }
+        }
+
+        async function deleteSchedule(id) {
+            if (confirm('Bạn có chắc muốn xóa lịch học này?')) {
+                try {
+                    const result = await AdminAPI.deleteSchedule(id);
+                    if (result.success && result.data.code === 200) {
+                        await loadSchedules();
+                        alert('Xóa thành công');
+                    } else {
+                        alert('Xóa thất bại: ' + (result.data.message || ''));
+                    }
+                } catch (error) {
+                    alert('Có lỗi xảy ra');
+                }
+            }
+        }
+
+        async function deleteRegistration(id) {
+            if (confirm('Bạn có chắc muốn xóa đăng ký này?')) {
+                try {
+                    const result = await AdminAPI.deleteRegistration(id);
+                    if (result.success && result.data.code === 200) {
+                        await loadRegistrations();
+                        alert('Xóa thành công');
+                    } else {
+                        alert('Xóa thất bại: ' + (result.data.message || ''));
+                    }
+                } catch (error) {
+                    alert('Có lỗi xảy ra');
+                }
+            }
+        }
+
+        async function deleteTuition(id) {
+            if (confirm('Bạn có chắc muốn xóa học phí này?')) {
+                try {
+                    const result = await AdminAPI.deleteTuitionFee(id);
+                    if (result.success && result.data.code === 200) {
+                        await loadTuitions();
+                        alert('Xóa thành công');
+                    } else {
+                        alert('Xóa thất bại: ' + (result.data.message || ''));
+                    }
+                } catch (error) {
+                    alert('Có lỗi xảy ra');
+                }
+            }
+        }
+
+        // Subject Modal functions
+        let currentSubjectId = null;
+
+        async function openSubjectModal(mode, id = null) {
+            currentSubjectId = id;
+            const modal = document.getElementById('subjectModal');
+            const form = document.getElementById('subjectForm');
+            const title = document.getElementById('subjectModalTitle');
+            const submitText = document.getElementById('subjectSubmitText');
+
+            form.reset();
+            document.getElementById('subjectId').value = '';
+            document.getElementById('subjectModalAlert').innerHTML = '';
+            document.getElementById('subjectModalAlert').classList.add('hidden');
+
+            if (mode === 'create') {
+                title.textContent = 'Thêm môn học';
+                submitText.textContent = 'Thêm';
+            } else if (mode === 'edit' && id) {
+                title.textContent = 'Sửa môn học';
+                submitText.textContent = 'Cập nhật';
+                
+                try {
+                    const result = await AdminAPI.getSubject(id);
+                    if (result.success && result.data.code === 200) {
+                        const subject = result.data.data;
+                        document.getElementById('subjectId').value = subject.id || '';
+                        document.getElementById('subjectMaMon').value = subject.maMon || '';
+                        document.getElementById('subjectTenMon').value = subject.tenMon || '';
+                        document.getElementById('subjectSoTinChi').value = subject.soTinChi || '';
+                    } else {
+                        showSubjectAlert('Không thể tải thông tin môn học', 'danger');
+                        return;
+                    }
+                } catch (error) {
+                    showSubjectAlert('Có lỗi xảy ra khi tải thông tin', 'danger');
+                    return;
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').classList.add('hidden');
+            currentSubjectId = null;
+        }
+
+        function showSubjectAlert(message, type) {
+            const alertDiv = document.getElementById('subjectModalAlert');
+            const colors = {
+                success: 'bg-green-100 text-green-800 border-green-200',
+                danger: 'bg-red-100 text-red-800 border-red-200'
+            };
+            alertDiv.className = `${colors[type] || colors.danger} border rounded-lg p-4 text-[1.4rem]`;
+            alertDiv.innerHTML = message;
+            alertDiv.classList.remove('hidden');
+        }
+
+        document.getElementById('subjectForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('subjectSubmitBtn');
+            const submitText = document.getElementById('subjectSubmitText');
+            const originalText = submitText.textContent;
+            
+            submitBtn.disabled = true;
+            submitText.textContent = 'Đang xử lý...';
+
+            const subjectData = {
+                maMon: document.getElementById('subjectMaMon').value.trim(),
+                tenMon: document.getElementById('subjectTenMon').value.trim(),
+                soTinChi: parseInt(document.getElementById('subjectSoTinChi').value) || 0
+            };
+
+            try {
+                let result;
+                if (currentSubjectId) {
+                    result = await AdminAPI.updateSubject(currentSubjectId, subjectData);
+                } else {
+                    result = await AdminAPI.createSubject(subjectData);
+                }
+
+                if (result.success && result.data.code === 200) {
+                    showSubjectAlert(currentSubjectId ? 'Cập nhật thành công!' : 'Thêm môn học thành công!', 'success');
+                    setTimeout(async () => {
+                        closeSubjectModal();
+                        await loadSubjects();
+                    }, 1000);
+                } else {
+                    showSubjectAlert(result.data.message || 'Có lỗi xảy ra', 'danger');
+                    submitBtn.disabled = false;
+                    submitText.textContent = originalText;
+                }
+            } catch (error) {
+                showSubjectAlert('Có lỗi xảy ra: ' + error.message, 'danger');
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }
+        });
+
+        document.getElementById('subjectModal').addEventListener('click', function(e) {
+            if (e.target === this) closeSubjectModal();
+        });
+
+        // Schedule Modal functions
+        let currentScheduleId = null;
+
+        async function openScheduleModal(mode, id = null) {
+            currentScheduleId = id;
+            const modal = document.getElementById('scheduleModal');
+            const form = document.getElementById('scheduleForm');
+            const title = document.getElementById('scheduleModalTitle');
+            const submitText = document.getElementById('scheduleSubmitText');
+
+            form.reset();
+            document.getElementById('scheduleId').value = '';
+            document.getElementById('scheduleModalAlert').innerHTML = '';
+            document.getElementById('scheduleModalAlert').classList.add('hidden');
+
+            // Load subjects for dropdown
+            await loadSubjectsForSchedule();
+
+            if (mode === 'create') {
+                title.textContent = 'Thêm lịch học';
+                submitText.textContent = 'Thêm';
+            } else if (mode === 'edit' && id) {
+                title.textContent = 'Sửa lịch học';
+                submitText.textContent = 'Cập nhật';
+                
+                try {
+                    // Get schedule from list
+                    const result = await AdminAPI.getAllSchedules();
+                    if (result.success && result.data.code === 200) {
+                        const schedule = result.data.data.find(s => s.id === id);
+                        if (schedule) {
+                            document.getElementById('scheduleId').value = schedule.id || '';
+                            // Try to find subject by maMon if subjectId is not available
+                            if (schedule.subjectId) {
+                                document.getElementById('scheduleSubjectId').value = schedule.subjectId;
+                            } else if (schedule.maMon) {
+                                // Find subject by maMon
+                                const subjectsResult = await AdminAPI.getAllSubjects();
+                                if (subjectsResult.success && subjectsResult.data.code === 200) {
+                                    const subject = subjectsResult.data.data.find(s => s.maMon === schedule.maMon);
+                                    if (subject) {
+                                        document.getElementById('scheduleSubjectId').value = subject.id;
+                                    }
+                                }
+                            }
+                            document.getElementById('scheduleThu').value = schedule.thu || '';
+                            document.getElementById('scheduleTietBatDau').value = schedule.tietBatDau || '';
+                            document.getElementById('scheduleTietKetThuc').value = schedule.tietKetThuc || '';
+                            document.getElementById('schedulePhong').value = schedule.phong || '';
+                            document.getElementById('scheduleGiangVien').value = schedule.giangVien || '';
+                        } else {
+                            showScheduleAlert('Không tìm thấy lịch học', 'danger');
+                            return;
+                        }
+                    } else {
+                        showScheduleAlert('Không thể tải thông tin lịch học', 'danger');
+                        return;
+                    }
+                } catch (error) {
+                    showScheduleAlert('Có lỗi xảy ra khi tải thông tin', 'danger');
+                    return;
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        async function loadSubjectsForSchedule() {
+            try {
+                const result = await AdminAPI.getAllSubjects();
+                const select = document.getElementById('scheduleSubjectId');
+                select.innerHTML = '<option value="">Chọn môn học</option>';
+                
+                if (result.success && result.data.code === 200) {
+                    result.data.data.forEach(subject => {
+                        const option = document.createElement('option');
+                        option.value = subject.id;
+                        option.textContent = `${subject.maMon} - ${subject.tenMon}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading subjects:', error);
+            }
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.add('hidden');
+            currentScheduleId = null;
+        }
+
+        function showScheduleAlert(message, type) {
+            const alertDiv = document.getElementById('scheduleModalAlert');
+            const colors = {
+                success: 'bg-green-100 text-green-800 border-green-200',
+                danger: 'bg-red-100 text-red-800 border-red-200'
+            };
+            alertDiv.className = `${colors[type] || colors.danger} border rounded-lg p-4 text-[1.4rem]`;
+            alertDiv.innerHTML = message;
+            alertDiv.classList.remove('hidden');
+        }
+
+        document.getElementById('scheduleForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('scheduleSubmitBtn');
+            const submitText = document.getElementById('scheduleSubmitText');
+            const originalText = submitText.textContent;
+            
+            submitBtn.disabled = true;
+            submitText.textContent = 'Đang xử lý...';
+
+            const scheduleData = {
+                subjectId: parseInt(document.getElementById('scheduleSubjectId').value),
+                thu: parseInt(document.getElementById('scheduleThu').value),
+                tietBatDau: parseInt(document.getElementById('scheduleTietBatDau').value),
+                tietKetThuc: parseInt(document.getElementById('scheduleTietKetThuc').value),
+                phong: document.getElementById('schedulePhong').value.trim(),
+                giangVien: document.getElementById('scheduleGiangVien').value.trim()
+            };
+
+            try {
+                let result;
+                if (currentScheduleId) {
+                    result = await AdminAPI.updateSchedule(currentScheduleId, scheduleData);
+                } else {
+                    result = await AdminAPI.createSchedule(scheduleData);
+                }
+
+                if (result.success && result.data.code === 200) {
+                    showScheduleAlert(currentScheduleId ? 'Cập nhật thành công!' : 'Thêm lịch học thành công!', 'success');
+                    setTimeout(async () => {
+                        closeScheduleModal();
+                        await loadSchedules();
+                    }, 1000);
+                } else {
+                    showScheduleAlert(result.data.message || 'Có lỗi xảy ra', 'danger');
+                    submitBtn.disabled = false;
+                    submitText.textContent = originalText;
+                }
+            } catch (error) {
+                showScheduleAlert('Có lỗi xảy ra: ' + error.message, 'danger');
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }
+        });
+
+        document.getElementById('scheduleModal').addEventListener('click', function(e) {
+            if (e.target === this) closeScheduleModal();
+        });
+
+        // Tuition Modal functions
+        let currentTuitionId = null;
+
+        async function openTuitionModal(mode, id = null) {
+            currentTuitionId = id;
+            const modal = document.getElementById('tuitionModal');
+            const form = document.getElementById('tuitionForm');
+            const title = document.getElementById('tuitionModalTitle');
+            const submitText = document.getElementById('tuitionSubmitText');
+
+            form.reset();
+            document.getElementById('tuitionId').value = '';
+            document.getElementById('tuitionModalAlert').innerHTML = '';
+            document.getElementById('tuitionModalAlert').classList.add('hidden');
+
+            // Load students for dropdown
+            await loadStudentsForTuition();
+
+            if (mode === 'create') {
+                title.textContent = 'Thêm học phí';
+                submitText.textContent = 'Thêm';
+                document.getElementById('tuitionDaDong').value = '0';
+            } else if (mode === 'edit' && id) {
+                title.textContent = 'Sửa học phí';
+                submitText.textContent = 'Cập nhật';
+                
+                try {
+                    // Get tuition from list
+                    const result = await AdminAPI.getAllTuitionFees();
+                    if (result.success && result.data.code === 200) {
+                        const tuition = result.data.data.find(t => t.id === id);
+                        if (tuition) {
+                            document.getElementById('tuitionId').value = tuition.id || '';
+                            // Try to find student by mssv if studentId is not available
+                            if (tuition.studentId) {
+                                document.getElementById('tuitionStudentId').value = tuition.studentId;
+                            } else if (tuition.mssv) {
+                                // Find student by mssv
+                                const studentsResult = await AdminAPI.getAllStudents();
+                                if (studentsResult.success && studentsResult.data.code === 200) {
+                                    const student = studentsResult.data.data.find(s => s.mssv === tuition.mssv);
+                                    if (student) {
+                                        document.getElementById('tuitionStudentId').value = student.id;
+                                    }
+                                }
+                            }
+                            document.getElementById('tuitionHocKy').value = tuition.hocKy || '';
+                            document.getElementById('tuitionNamHoc').value = tuition.namHoc || '';
+                            document.getElementById('tuitionTongTien').value = tuition.tongTien || '0';
+                            document.getElementById('tuitionDaDong').value = tuition.daDong || '0';
+                        } else {
+                            showTuitionAlert('Không tìm thấy học phí', 'danger');
+                            return;
+                        }
+                    } else {
+                        showTuitionAlert('Không thể tải thông tin học phí', 'danger');
+                        return;
+                    }
+                } catch (error) {
+                    showTuitionAlert('Có lỗi xảy ra khi tải thông tin', 'danger');
+                    return;
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        async function loadStudentsForTuition() {
+            try {
+                const result = await AdminAPI.getAllStudents();
+                const select = document.getElementById('tuitionStudentId');
+                select.innerHTML = '<option value="">Chọn sinh viên</option>';
+                
+                if (result.success && result.data.code === 200) {
+                    result.data.data.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.id;
+                        option.textContent = `${student.mssv} - ${student.hoTen}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        function closeTuitionModal() {
+            document.getElementById('tuitionModal').classList.add('hidden');
+            currentTuitionId = null;
+        }
+
+        function showTuitionAlert(message, type) {
+            const alertDiv = document.getElementById('tuitionModalAlert');
+            const colors = {
+                success: 'bg-green-100 text-green-800 border-green-200',
+                danger: 'bg-red-100 text-red-800 border-red-200'
+            };
+            alertDiv.className = `${colors[type] || colors.danger} border rounded-lg p-4 text-[1.4rem]`;
+            alertDiv.innerHTML = message;
+            alertDiv.classList.remove('hidden');
+        }
+
+        document.getElementById('tuitionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('tuitionSubmitBtn');
+            const submitText = document.getElementById('tuitionSubmitText');
+            const originalText = submitText.textContent;
+            
+            submitBtn.disabled = true;
+            submitText.textContent = 'Đang xử lý...';
+
+            const tuitionData = {
+                studentId: parseInt(document.getElementById('tuitionStudentId').value),
+                hocKy: document.getElementById('tuitionHocKy').value.trim(),
+                namHoc: document.getElementById('tuitionNamHoc').value.trim(),
+                tongTien: parseFloat(document.getElementById('tuitionTongTien').value) || 0,
+                daDong: parseFloat(document.getElementById('tuitionDaDong').value) || 0
+            };
+
+            try {
+                let result;
+                if (currentTuitionId) {
+                    result = await AdminAPI.updateTuitionFee(currentTuitionId, tuitionData);
+                } else {
+                    result = await AdminAPI.createTuitionFee(tuitionData);
+                }
+
+                if (result.success && result.data.code === 200) {
+                    showTuitionAlert(currentTuitionId ? 'Cập nhật thành công!' : 'Thêm học phí thành công!', 'success');
+                    setTimeout(async () => {
+                        closeTuitionModal();
+                        await loadTuitions();
+                    }, 1000);
+                } else {
+                    showTuitionAlert(result.data.message || 'Có lỗi xảy ra', 'danger');
+                    submitBtn.disabled = false;
+                    submitText.textContent = originalText;
+                }
+            } catch (error) {
+                showTuitionAlert('Có lỗi xảy ra: ' + error.message, 'danger');
+                submitBtn.disabled = false;
+                submitText.textContent = originalText;
+            }
+        });
+
+        document.getElementById('tuitionModal').addEventListener('click', function(e) {
+            if (e.target === this) closeTuitionModal();
+        });
+    </script>
+</body>
+</html>
