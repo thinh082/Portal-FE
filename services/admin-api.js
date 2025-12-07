@@ -157,6 +157,155 @@ const AdminAPI = {
 
     getStudentsByClass: async (top = 10) => {
         return await adminApiCall(`/charts/students-by-class?top=${top}`, 'GET');
+    },
+
+    // ========== EXPORT EXCEL ==========
+    exportStudents: async () => {
+        try {
+            const response = await fetch(`${ADMIN_API_CONFIG.BASE_URL}/export/students`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'DanhSachSinhVien.xlsx';
+                if (contentDisposition) {
+                    const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+                    if (fileNameMatch && fileNameMatch[1]) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                return { success: true, message: 'Xuất Excel thành công' };
+            } else {
+                return { success: false, message: 'Xuất Excel thất bại' };
+            }
+        } catch (error) {
+            console.error('Export Excel Error:', error);
+            return { success: false, message: 'Có lỗi xảy ra khi xuất Excel' };
+        }
+    },
+
+    exportSubjects: async () => {
+        try {
+            const response = await fetch(`${ADMIN_API_CONFIG.BASE_URL}/export/subjects`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'DanhSachMonHoc.xlsx';
+                if (contentDisposition) {
+                    const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+                    if (fileNameMatch && fileNameMatch[1]) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                return { success: true, message: 'Xuất Excel thành công' };
+            } else {
+                return { success: false, message: 'Xuất Excel thất bại' };
+            }
+        } catch (error) {
+            console.error('Export Excel Error:', error);
+            return { success: false, message: 'Có lỗi xảy ra khi xuất Excel' };
+        }
+    },
+
+    exportRegistrations: async () => {
+        try {
+            const response = await fetch(`${ADMIN_API_CONFIG.BASE_URL}/export/registrations`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'DanhSachDangKy.xlsx';
+                if (contentDisposition) {
+                    const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+                    if (fileNameMatch && fileNameMatch[1]) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                return { success: true, message: 'Xuất Excel thành công' };
+            } else {
+                return { success: false, message: 'Xuất Excel thất bại' };
+            }
+        } catch (error) {
+            console.error('Export Excel Error:', error);
+            return { success: false, message: 'Có lỗi xảy ra khi xuất Excel' };
+        }
+    },
+
+    exportTuitionFees: async () => {
+        try {
+            const response = await fetch(`${ADMIN_API_CONFIG.BASE_URL}/export/tuition-fees`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'DanhSachHocPhi.xlsx';
+                if (contentDisposition) {
+                    const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+                    if (fileNameMatch && fileNameMatch[1]) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                return { success: true, message: 'Xuất Excel thành công' };
+            } else {
+                return { success: false, message: 'Xuất Excel thất bại' };
+            }
+        } catch (error) {
+            console.error('Export Excel Error:', error);
+            return { success: false, message: 'Có lỗi xảy ra khi xuất Excel' };
+        }
     }
 };
 

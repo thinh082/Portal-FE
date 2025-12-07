@@ -179,10 +179,16 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý sinh viên</h3>
-                        <button onclick="openStudentModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
-                            <span class="text-[1.4rem]">Thêm sinh viên</span>
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="exportStudents()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="bi bi-file-earmark-excel text-[1.4rem]"></i>
+                                <span class="text-[1.4rem]">Xuất Excel</span>
+                            </button>
+                            <button onclick="openStudentModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                                <span class="text-[1.4rem]">Thêm sinh viên</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
@@ -215,10 +221,16 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý môn học</h3>
-                        <button onclick="openSubjectModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
-                            <span class="text-[1.4rem]">Thêm môn học</span>
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="exportSubjects()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="bi bi-file-earmark-excel text-[1.4rem]"></i>
+                                <span class="text-[1.4rem]">Xuất Excel</span>
+                            </button>
+                            <button onclick="openSubjectModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                                <span class="text-[1.4rem]">Thêm môn học</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
@@ -283,7 +295,13 @@
             <!-- Registrations Tab -->
             <div id="tab-registrations" class="tab-content space-y-6">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-[1.8rem] font-semibold text-gray-900 mb-6">Quản lý đăng ký</h3>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý đăng ký</h3>
+                        <button onclick="exportRegistrations()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer flex items-center gap-2">
+                            <i class="bi bi-file-earmark-excel text-[1.4rem]"></i>
+                            <span class="text-[1.4rem]">Xuất Excel</span>
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50">
@@ -314,10 +332,16 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-[1.8rem] font-semibold text-gray-900">Quản lý học phí</h3>
-                        <button onclick="openTuitionModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
-                            <i class="bi bi-plus-circle text-[1.4rem]"></i>
-                            <span class="text-[1.4rem]">Thêm học phí</span>
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="exportTuitionFees()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="bi bi-file-earmark-excel text-[1.4rem]"></i>
+                                <span class="text-[1.4rem]">Xuất Excel</span>
+                            </button>
+                            <button onclick="openTuitionModal('create')" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors cursor-pointer flex items-center gap-2">
+                                <i class="bi bi-plus-circle text-[1.4rem]"></i>
+                                <span class="text-[1.4rem]">Thêm học phí</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
@@ -961,7 +985,7 @@
                         schedules.forEach(schedule => {
                             html += `
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${schedule.maMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${schedule.subjectMaMon || 'N/A'}</td>
                                     <td class="px-4 py-4 text-[1.4rem] text-gray-600">Thứ ${schedule.thu || 'N/A'}</td>
                                     <td class="px-4 py-4 text-[1.4rem] text-gray-600">${schedule.tietBatDau || 'N/A'}-${schedule.tietKetThuc || 'N/A'}</td>
                                     <td class="px-4 py-4 text-[1.4rem] text-gray-600">${schedule.phong || 'N/A'}</td>
@@ -1000,10 +1024,10 @@
                         registrations.forEach(reg => {
                             html += `
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${reg.mssv || 'N/A'}</td>
-                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${reg.hoTen || 'N/A'}</td>
-                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${reg.maMon || 'N/A'}</td>
-                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${reg.tenMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${reg.studentMssv || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${reg.studentName || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${reg.subjectMaMon || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-600">${reg.subjectName || 'N/A'}</td>
                                     <td class="px-4 py-4 text-center">
                                         <button onclick="deleteRegistration(${reg.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
                                             <i class="bi bi-trash text-[1.4rem]"></i>
@@ -1034,7 +1058,7 @@
                             const statusClass = getStatusBadgeClass(tuition.trangThai);
                             html += `
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${tuition.mssv || 'N/A'}</td>
+                                    <td class="px-4 py-4 text-[1.4rem] text-gray-900">${tuition.studentMssv || 'N/A'}</td>
                                     <td class="px-4 py-4 text-[1.4rem] text-gray-600">${tuition.hocKy || 'N/A'}</td>
                                     <td class="px-4 py-4 text-[1.4rem] text-gray-600">${tuition.namHoc || 'N/A'}</td>
                                     <td class="px-4 py-4 text-[1.4rem] text-gray-900">${formatCurrency(tuition.tongTien || 0)}</td>
@@ -1440,14 +1464,14 @@
                         const schedule = result.data.data.find(s => s.id === id);
                         if (schedule) {
                             document.getElementById('scheduleId').value = schedule.id || '';
-                            // Try to find subject by maMon if subjectId is not available
+                            // Try to find subject by subjectMaMon if subjectId is not available
                             if (schedule.subjectId) {
                                 document.getElementById('scheduleSubjectId').value = schedule.subjectId;
-                            } else if (schedule.maMon) {
-                                // Find subject by maMon
+                            } else if (schedule.subjectMaMon) {
+                                // Find subject by subjectMaMon
                                 const subjectsResult = await AdminAPI.getAllSubjects();
                                 if (subjectsResult.success && subjectsResult.data.code === 200) {
-                                    const subject = subjectsResult.data.data.find(s => s.maMon === schedule.maMon);
+                                    const subject = subjectsResult.data.data.find(s => s.maMon === schedule.subjectMaMon);
                                     if (subject) {
                                         document.getElementById('scheduleSubjectId').value = subject.id;
                                     }
@@ -1592,14 +1616,14 @@
                         const tuition = result.data.data.find(t => t.id === id);
                         if (tuition) {
                             document.getElementById('tuitionId').value = tuition.id || '';
-                            // Try to find student by mssv if studentId is not available
+                            // Try to find student by studentMssv if studentId is not available
                             if (tuition.studentId) {
                                 document.getElementById('tuitionStudentId').value = tuition.studentId;
-                            } else if (tuition.mssv) {
-                                // Find student by mssv
+                            } else if (tuition.studentMssv) {
+                                // Find student by studentMssv
                                 const studentsResult = await AdminAPI.getAllStudents();
                                 if (studentsResult.success && studentsResult.data.code === 200) {
-                                    const student = studentsResult.data.data.find(s => s.mssv === tuition.mssv);
+                                    const student = studentsResult.data.data.find(s => s.mssv === tuition.studentMssv);
                                     if (student) {
                                         document.getElementById('tuitionStudentId').value = student.id;
                                     }
@@ -1708,6 +1732,111 @@
         document.getElementById('tuitionModal').addEventListener('click', function(e) {
             if (e.target === this) closeTuitionModal();
         });
+
+        // Export Excel functions
+        async function exportStudents() {
+            const btn = document.querySelector('#tab-students button[onclick*="exportStudents"]');
+            if (!btn) return;
+            
+            try {
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split text-[1.4rem]"></i> <span class="text-[1.4rem]">Đang xuất...</span>';
+                
+                const result = await AdminAPI.exportStudents();
+                
+                if (result.success) {
+                    // File đã được tải xuống tự động
+                } else {
+                    alert(result.message || 'Xuất Excel thất bại');
+                }
+                
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            } catch (error) {
+                alert('Có lỗi xảy ra khi xuất Excel: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-file-earmark-excel text-[1.4rem]"></i> <span class="text-[1.4rem]">Xuất Excel</span>';
+            }
+        }
+
+        async function exportSubjects() {
+            const btn = document.querySelector('#tab-subjects button[onclick*="exportSubjects"]');
+            if (!btn) return;
+            
+            try {
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split text-[1.4rem]"></i> <span class="text-[1.4rem]">Đang xuất...</span>';
+                
+                const result = await AdminAPI.exportSubjects();
+                
+                if (result.success) {
+                    // File đã được tải xuống tự động
+                } else {
+                    alert(result.message || 'Xuất Excel thất bại');
+                }
+                
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            } catch (error) {
+                alert('Có lỗi xảy ra khi xuất Excel: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-file-earmark-excel text-[1.4rem]"></i> <span class="text-[1.4rem]">Xuất Excel</span>';
+            }
+        }
+
+        async function exportRegistrations() {
+            const btn = document.querySelector('#tab-registrations button[onclick*="exportRegistrations"]');
+            if (!btn) return;
+            
+            try {
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split text-[1.4rem]"></i> <span class="text-[1.4rem]">Đang xuất...</span>';
+                
+                const result = await AdminAPI.exportRegistrations();
+                
+                if (result.success) {
+                    // File đã được tải xuống tự động
+                } else {
+                    alert(result.message || 'Xuất Excel thất bại');
+                }
+                
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            } catch (error) {
+                alert('Có lỗi xảy ra khi xuất Excel: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-file-earmark-excel text-[1.4rem]"></i> <span class="text-[1.4rem]">Xuất Excel</span>';
+            }
+        }
+
+        async function exportTuitionFees() {
+            const btn = document.querySelector('#tab-tuition button[onclick*="exportTuitionFees"]');
+            if (!btn) return;
+            
+            try {
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split text-[1.4rem]"></i> <span class="text-[1.4rem]">Đang xuất...</span>';
+                
+                const result = await AdminAPI.exportTuitionFees();
+                
+                if (result.success) {
+                    // File đã được tải xuống tự động
+                } else {
+                    alert(result.message || 'Xuất Excel thất bại');
+                }
+                
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            } catch (error) {
+                alert('Có lỗi xảy ra khi xuất Excel: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-file-earmark-excel text-[1.4rem]"></i> <span class="text-[1.4rem]">Xuất Excel</span>';
+            }
+        }
     </script>
 </body>
 </html>
